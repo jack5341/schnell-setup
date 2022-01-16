@@ -16,12 +16,9 @@ limitations under the License.
 package main
 
 import (
-	"os"
-
 	"github.com/jack5341/schnell-setup/cmd"
 )
 
 func main() {
 	cmd.Execute()
-	os.WriteFile("nginx.conf", []byte("hell oworl"), 0644)
 }
