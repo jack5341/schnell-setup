@@ -5,22 +5,6 @@ import (
 	"os"
 )
 
-func GenerateNginxConf(dName string, pPass string) {
-	fmt.Println(dName, pPass)
-
-	location := serverGenerator(dName, pPass)
-
-	defaultService := defaultService()
-
-	nginxFile := fmt.Sprintf(`http {
-	%s
-
-	%s
-}`, defaultService, location)
-
-	os.WriteFile("nginx.conf", []byte(nginxFile), 0644)
-}
-
 func serverGenerator(dName string, pPass string) string {
 	location := `location / {
 			proxy_pass http://` + pPass + `;
@@ -46,4 +30,25 @@ func defaultService() string {
 	}`
 
 	return defaultService
+}
+
+func GenerateNginxConf(dName string, pPass string, path string) {
+	fmt.Println(dName, pPass)
+
+	location := serverGenerator(dName, pPass)
+
+	defaultService := defaultService()
+
+	nginxFile := fmt.Sprintf(`http {
+	%s
+
+	%s
+}`, defaultService, location)
+
+	if path != "" {
+		os.Create(path)
+		os.WriteFile(path+"/"+"nginx.conf", []byte(nginxFile), 0644)
+	}
+
+	os.WriteFile("nginx.conf", []byte(nginxFile), 0644)
 }
