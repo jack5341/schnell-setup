@@ -52,3 +52,38 @@ func GenerateNginxConf(dName string, pPass string, path string) {
 
 	os.WriteFile("nginx.conf", []byte(nginxFile), 0644)
 }
+
+func GenerateCompose(path string, imageN string, port string) {
+	compose := fmt.Sprintf(`version: '3'
+services:
+	%s:
+	  image: %s
+	  volumes:
+		- ./nginx.conf:/etc/nginx/nginx.conf
+	  ports:
+		- %s
+		- 443:443
+      restart: always
+	`, imageN, imageN, port)
+
+	if path != "" {
+		compose := fmt.Sprintf(`version: '2'
+		services:
+		  %s:
+			image: %s
+			ports:
+			  - %s
+			volumes:
+			  - %snginx.conf:/etc/nginx/conf.d/default.conf
+			restart: always
+			command: nginx -g "daemon off;"
+		`, imageN, imageN, path, port)
+
+		os.Create(path)
+		os.WriteFile(path+"/"+"docker-compose.yml", []byte(compose), 0644)
+		return
+	}
+
+	os.WriteFile("./docker-compose.yml", []byte(compose), 0644)
+	return
+}

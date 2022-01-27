@@ -7,10 +7,17 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// Variables for nginx configs
 var domainName string
 var proxyPass string
-var path string
+
 var isCompose bool
+
+// Variables for docker-compose.yml
+
+var path string
+var imageN string
+var port string
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
@@ -22,14 +29,27 @@ var initCmd = &cobra.Command{
 			return
 		}
 
+		if isCompose {
+			if imageN == "" && port == "" {
+				fmt.Println("imagename and port is required")
+				return
+			}
+
+			pkg.GenerateNginxConf(domainName, proxyPass, path)
+			pkg.GenerateCompose(path, imageN, port)
+			return
+		}
+
 		pkg.GenerateNginxConf(domainName, proxyPass, path)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
-	initCmd.PersistentFlags().StringVar(&domainName, "domain", "", "domain name for initialize nginx.conf file")
-	initCmd.PersistentFlags().StringVar(&proxyPass, "proxy", "", "proxy_pass for initialize nginx.conf file")
-	initCmd.PersistentFlags().StringVar(&path, "path", "", "path for initialize nginx.conf file")
+	initCmd.Flags().StringVar(&domainName, "domain", "", "domain name for initialize nginx.conf file")
+	initCmd.Flags().StringVar(&proxyPass, "proxy", "", "proxy_pass for initialize nginx.conf file")
+	initCmd.Flags().StringVar(&path, "path", "", "path for initialize nginx.conf file")
+	initCmd.Flags().StringVar(&imageN, "imagename", "", "image name for docker-compose.yml file")
+	initCmd.Flags().StringVar(&port, "port", "", "port for docker-compose.yml file")
 	initCmd.Flags().BoolVar(&isCompose, "compose", false, "initialize docker-compose.yml file")
 }
